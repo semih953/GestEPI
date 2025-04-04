@@ -1,0 +1,23 @@
+{
+  "name": "gestepiinterfaces-semih",
+  "version": "1.0.0",
+  "description": "Interfaces pour le projet GestEPI",
+  "main": "dist/index.d.ts",
+  "scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "build": "tsc"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/semih953/GestEPI.git"
+  },
+  "author": "semih",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/semih953/GestEPI/issues"
+  },
+  "homepage": "https://github.com/semih953/GestEPI#readme",
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  }
+}
