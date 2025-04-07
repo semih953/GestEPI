@@ -1,46 +1,36 @@
-export declare enum EPIType {
-    CORDE = "CORDE",
-    SANGLE = "SANGLE",
-    LONGE = "LONGE",
-    BAUDRIER = "BAUDRIER",
-    CASQUE = "CASQUE",
-    MOUSQUETON = "MOUSQUETON",
-    SYSTEME_ASSURAGE = "SYSTEME_ASSURAGE"
-}
-export declare enum EPICategory {
-    TEXTILE = "TEXTILE",
-    METALLIQUE = "METALLIQUE"
-}
-export declare enum ControlStatus {
-    OPERATIONNEL = "OPERATIONNEL",
-    A_REPARER = "A_REPARER",
-    MIS_AU_REBUT = "MIS_AU_REBUT"
-}
-export interface EPI {
-    id?: number;
-    customId: string;
-    type: EPIType;
-    category: EPICategory;
-    brand: string;
+export interface Epi {
+    id: number;
+    internal_id: string;
+    serial_number: string;
     model: string;
-    serialNumber: string;
-    purchaseDate: Date;
-    manufacturingDate: Date;
-    commissioningDate: Date;
-    size?: string;
-    color?: string;
-    controlFrequency: number;
+    brand: string;
+    type_id: number;
+    size: string;
+    color: string;
+    purchase_date: Date;
+    service_start_date: Date;
+    manufacture_date: Date;
+    inspection_frequency: string;
 }
-export interface Control {
-    id?: number;
-    epiId: number;
-    controlDate: Date;
-    manager: string;
-    status: ControlStatus;
-    remarks?: string;
+export interface EpiTypes {
+    id: number;
+    label: string;
 }
-export interface ControlAlert {
-    epi: EPI;
-    lastControl?: Control;
-    daysUntilNextControl: number;
+export interface EpiCheck {
+    id: number;
+    internal_id: string;
+    check_date: Date;
+    status_id: number;
+    user_id: number;
+}
+export interface CheckStatus {
+    id: number;
+    label: string;
+}
+export interface Users {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: 'Admin' | 'Manager' | 'User';
 }
