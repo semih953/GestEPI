@@ -1,21 +1,28 @@
-import express from 'express';
-import cors from 'cors';
-import routes from './routes';
-import sequelize from './config/database';
+//********** Imports **********//
+import express from "express";
+import cors from "cors";
+import avionController from "./pages/avionController";
+import * as middlewares from "./middlewares";
 
+require("dotenv").config();
+
+//********** Server **********//
+const allowedOrigins = ["http://localhost:3000", "http://127.0.0.1:3000"];
+
+const options: cors.CorsOptions = {
+  origin: allowedOrigins,
+};
+// Initializing express.
 const app = express();
-
-// Middleware
-app.use(cors());
+// Enable CORS
+app.use(cors(options));
+// Middleware to parse json throught requests.
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use('/api', routes);
+// Middleware to define route to avion controller.
+app.use("/avions", avionController);
 
-// Sync database
-sequelize.sync({ force: false }).then(() => {
-  console.log('Database synchronized');
-});
+app.use(middlewares.notFound);
+app.use(middlewares.errorHandler);
 
 export default app;

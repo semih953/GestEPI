@@ -1,13 +1,13 @@
 //********** Imports **********//
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from 'express';
 
-import ErrorResponse from "./pages/interfaces/ErrorResponse";
+import ErrorResponse from './pages/interfaces/ErrorResponse';
 
 //********** Middlewares **********//
 export const notFound = (
   request: Request,
   response: Response,
-  nextFunction: NextFunction
+  nextFunction: NextFunction,
 ) => {
   response.status(404);
   const error = new Error(`Not found - ${request.originalUrl}`);
@@ -18,7 +18,7 @@ export const errorHandler = (
   error: Error,
   request: Request,
   response: Response<ErrorResponse>,
-  nextFunction: NextFunction
+  nextFunction: NextFunction,
 ) => {
   const statusCode = response.statusCode !== 200 ? response.statusCode : 500;
   response
