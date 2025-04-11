@@ -75,9 +75,9 @@ const mockAlerts: ControlAlert[] = [
 ];
 
 const mockStats = {
-  totalEpis: 24,
-  totalControls: 86,
-  pendingControls: 5
+  totalEpis: 3,
+  totalControls: 1,
+  pendingControls: 2
 };
 
 export const Dashboard = () => {

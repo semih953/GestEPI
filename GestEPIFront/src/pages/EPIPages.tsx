@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Typography, 
-  Paper, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Button, 
-  Box, 
+import {
+  Typography,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Button,
+  Box,
   IconButton,
   CircularProgress
 } from "@mui/material";
@@ -17,69 +17,38 @@ import { Add, Edit, Visibility } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { Epi } from "gestepiinterfaces-semih";
 
-
-// Données mockées pour le développement
-const mockEpis: Epi[] = [
-  {
-    id: 1,
-    internal_id: "EPI-001",
-    serial_number: "SN123456",
-    model: "Casque Pro",
-    brand: "SafetyFirst",
-    type_id: 1,
-    size: "L",
-    color: "Rouge",
-    purchase_date: new Date("2023-01-15"),
-    service_start_date: new Date("2023-01-20"),
-    manufacture_date: new Date("2022-10-05"),
-    inspection_frequency: "6m"
-  },
-  {
-    id: 2,
-    internal_id: "EPI-002",
-    serial_number: "SN789012",
-    model: "Harnais Secure",
-    brand: "AlpineEquip",
-    type_id: 2,
-    size: "M",
-    color: "Noir",
-    purchase_date: new Date("2023-03-10"),
-    service_start_date: new Date("2023-03-15"),
-    manufacture_date: new Date("2023-01-20"),
-    inspection_frequency: "3m"
-  },
-  {
-    id: 3,
-    internal_id: "EPI-003",
-    serial_number: "SN345678",
-    model: "Corde Dynamic",
-    brand: "RopesMaster",
-    type_id: 3,
-    size: "50m",
-    color: "Bleu",
-    purchase_date: new Date("2022-11-05"),
-    service_start_date: new Date("2022-11-10"),
-    manufacture_date: new Date("2022-09-15"),
-    inspection_frequency: "3m"
-  }
-];
-
 export const EPIList = () => {
   const [epis, setEpis] = useState<Epi[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null); // Pour gérer les erreurs
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Simuler un chargement de données
-    const timer = setTimeout(() => {
-      setEpis(mockEpis);
-      setLoading(false);
-    }, 500);
+    const fetchEpis = async () => {
+      try {
+        const response = await fetch("http://localhost:5501/epi/getAll");
+        console.log('Response:', response); // Log de la réponse brute
 
-    return () => clearTimeout(timer);
+        if (!response.ok) {
+          throw new Error("Erreur lors de la récupération des données.");
+        }
+
+        const data = await response.json();
+        console.log('Data:', data); // Log des données reçues de l'API
+
+        setEpis(data);
+      } catch (err) {
+        setError("Impossible de récupérer les données des EPIs.");
+        console.error('Error fetching data:', err); // Log de l'erreur si ça échoue
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEpis();
   }, []);
 
-  const formatDate = (dateString: Date) => {
+  const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("fr-FR");
   };
@@ -90,8 +59,8 @@ export const EPIList = () => {
         <Typography variant="h4" component="h1" gutterBottom>
           Liste des EPIs
         </Typography>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           startIcon={<Add />}
           onClick={() => navigate("/epis/new")}
         >
@@ -100,8 +69,12 @@ export const EPIList = () => {
       </Box>
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
           <CircularProgress />
+        </Box>
+      ) : error ? (
+        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+          <Typography color="error">{error}</Typography>
         </Box>
       ) : (
         <TableContainer component={Paper}>
@@ -132,7 +105,7 @@ export const EPIList = () => {
                     <TableCell>{epi.model}</TableCell>
                     <TableCell>{epi.type_id}</TableCell>
                     <TableCell>{epi.serial_number}</TableCell>
-                    <TableCell>{formatDate(epi.purchase_date)}</TableCell>
+                    {/* <TableCell>{formatDate(epi.purchase_date)}</TableCell> */}
                     <TableCell>
                       <IconButton onClick={() => navigate(`/epis/${epi.id}`)}>
                         <Visibility />

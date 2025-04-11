@@ -19,8 +19,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard />} />
-            <Route path="epis" element={<EPIList />} />
-             <Route path="controls" element={<ControlList />} />
+            <Route path="epi" element={<EPIList />} />
+             <Route path="control" element={<ControlList />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -5569,7 +5569,7 @@
 
 "gestepiinterfaces-semih@file:../GestEPIInterfaces":
   "resolved" "file:../GestEPIInterfaces"
-  "version" "1.0.0"
+  "version" "1.0.1"
 
 "get-caller-file@^2.0.5":
   "integrity" "sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg=="

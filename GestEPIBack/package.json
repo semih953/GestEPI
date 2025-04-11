@@ -6,7 +6,7 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "ts-node src/server.ts",
-    "dev": "concurrently -k -n \"Typescript,Node\" -p \"[{name}]\" -c \"blue,green\" \"tsc --watch\" \"nodemon src/index.ts",
+    "dev": "concurrently -k -n \"Typescript,Node\" -p \"[{name}]\" -c \"blue,green\" \"tsc --watch\" \"nodemon dist/src/index.js\"",
     "build": "tsc",
     "lint": "eslint --fix src test",
     "test": "jest",

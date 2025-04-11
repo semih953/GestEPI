@@ -11,8 +11,8 @@ export const Layout = () => {
 
   const menuItems = [
     { text: "Tableau de bord", icon: <DashboardIcon />, path: "/" },
-    { text: "Gestion des EPI", icon: <Security />, path: "/epis" },
-    { text: "Contrôles", icon: <FactCheck />, path: "/controls" },
+    { text: "Gestion des EPI", icon: <Security />, path: "/epi" },
+    { text: "Contrôles", icon: <FactCheck />, path: "/control" },
   ];
 
   return (
