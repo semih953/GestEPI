@@ -24,7 +24,7 @@ import mariadb from "mariadb";
 export const pool = mariadb.createPool({
   host: "localhost",
   port: 3306,
-  user: "root",
+  user: "root@gmail.com",
   password: "", // Laissez vide si vous n'avez pas défini de mot de passe, sinon mettez votre mot de passe
   database: "gestepi",
   connectionLimit: 2,
@@ -40,6 +40,4 @@ export const pool = mariadb.createPool({
     console.error("❌ Erreur de connexion :", err);
   }
 })();
-
-
 

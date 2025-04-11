@@ -33,10 +33,15 @@ export interface Users {
     last_name: string;
     email: string;
     role: 'Admin' | 'Manager' | 'User';
-    // Propriétés étendues
-    phone_number?: string;
-    department?: string;
-    isActive?: boolean;
-    lastLogin?: Date;
-    createdAt?: Date;
-  }
+}
+export interface UserWithPassword extends Users {
+    password: string;
+}
+export interface LoginRequest {
+    email: string;
+    password: string;
+}
+export interface LoginResponse {
+    user: Users;
+    token: string;
+}

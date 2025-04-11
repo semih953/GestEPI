@@ -137,6 +137,29 @@ export const userModel = {
     }
   },
 
+  // Ajout de la méthode updateLastLogin
+  updateLastLogin: async (id: string): Promise<any> => {
+    let conn;
+    try {
+      conn = await pool.getConnection();
+      const result = await conn.query(
+        "UPDATE users SET last_login = NOW() WHERE id = ?",
+        [id]
+      );
+      
+      if (result.affectedRows === 0) {
+        throw new Error(`User with id ${id} not found`);
+      }
+      
+      return { message: "Last login updated successfully" };
+    } catch (err) {
+      console.error("Error in updateLastLogin:", err);
+      throw err;
+    } finally {
+      if (conn) conn.release();
+    }
+  },
+
   delete: async (id: string): Promise<any> => {
     let conn;
     try {

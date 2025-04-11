@@ -46,13 +46,12 @@ export interface UserWithPassword extends Users {
   password: string;
 }
 
-// Interface pour les demandes de connexion
+
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
-// Interface pour les réponses de connexion
 export interface LoginResponse {
   user: Users;
   token: string;
