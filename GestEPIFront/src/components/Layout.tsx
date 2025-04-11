@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import { Box, AppBar, Toolbar, Typography, Drawer, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
-import { Dashboard as DashboardIcon, Security, FactCheck, Notifications } from "@mui/icons-material";
+import { Dashboard as DashboardIcon, Security, FactCheck, People } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 240;
@@ -13,6 +13,7 @@ export const Layout = () => {
     { text: "Tableau de bord", icon: <DashboardIcon />, path: "/" },
     { text: "Gestion des EPI", icon: <Security />, path: "/epi" },
     { text: "Contrôles", icon: <FactCheck />, path: "/control" },
+    { text: "Utilisateurs", icon: <People />, path: "/users" }, // Nouvelle entrée pour les utilisateurs
   ];
 
   return (

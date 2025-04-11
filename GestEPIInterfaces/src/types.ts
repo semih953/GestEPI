@@ -33,8 +33,27 @@ export interface CheckStatus {
   
 export interface Users {
   id: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
   role: 'Admin' | 'Manager' | 'User';
+  // Le mot de passe n'est généralement pas inclus dans l'interface
+  // car il ne devrait pas être renvoyé au frontend
+}
+
+// Interface séparée pour les opérations qui impliquent un mot de passe
+export interface UserWithPassword extends Users {
+  password: string;
+}
+
+// Interface pour les demandes de connexion
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+// Interface pour les réponses de connexion
+export interface LoginResponse {
+  user: Users;
+  token: string;
 }
