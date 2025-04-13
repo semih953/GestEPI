@@ -1,152 +1,178 @@
-import React, { useState, useEffect } from "react";
+// // import React, { useState, useEffect } from "react";
+// // import { Box, Typography, Button } from "@mui/material";
+// // import { useNavigate } from "react-router-dom";
+// // import { UserForm } from "../components/UserForm";
+// // import UsersList from "../components/UsersList";
+
+// // export const UserPages = () => {
+// //   const navigate = useNavigate();
+// //   const [isAdding, setIsAdding] = useState(false); // Gérer l'état pour ajouter un utilisateur
+// //   const [isEditing, setIsEditing] = useState(false); // Gérer l'état pour modifier un utilisateur
+
+// //   useEffect(() => {
+// //     // Réinitialiser l'état d'ajout ou de modification quand la page se charge
+// //     const path = window.location.pathname;
+// //     if (path.includes("/users/new")) {
+// //       setIsAdding(true);
+// //       setIsEditing(false);
+// //     } else if (path.includes("/users/")) {
+// //       setIsAdding(false);
+// //       setIsEditing(true);
+// //     }
+// //   }, [window.location.pathname]);
+
+// //   return (
+// //     <Box sx={{ padding: 3 }}>
+// //       <Typography variant="h4" gutterBottom>
+// //         {isAdding ? "Ajouter un nouvel utilisateur" : isEditing ? "Modifier un utilisateur" : "Liste des utilisateurs"}
+// //       </Typography>
+
+// //       {isAdding || isEditing ? (
+// //         <UserForm />
+// //       ) : (
+// //         <Box sx={{ mb: 2 }}>
+// //           <Button
+// //             variant="contained"
+// //             color="primary"
+// //             onClick={() => navigate("/users/new")}
+// //             sx={{ mb: 2 }}
+// //           >
+// //             Ajouter un utilisateur
+// //           </Button>
+// //           <UsersList />
+// //         </Box>
+// //       )}
+// //     </Box>
+// //   );
+// // };
+
+// import React, { useState } from "react";
+// import {
+//   Box,
+//   Typography,
+//   Button,
+//   Dialog,
+//   DialogTitle,
+//   DialogContent,
+//   DialogActions
+// } from "@mui/material";
+// import UsersList from "../components/UsersList";
+// import { UserForm } from "../components/UserForm";
+
+// export const UserPages = () => {
+//   const [openModal, setOpenModal] = useState(false); // Contrôle de la modal
+
+//   const handleOpen = () => setOpenModal(true);
+//   const handleClose = () => setOpenModal(false);
+
+//   return (
+//     <Box sx={{ padding: 3 }}>
+//       <Typography variant="h4" gutterBottom>
+//         Gestion des utilisateurs
+//       </Typography>
+
+//       <Box sx={{ mb: 2 }}>
+//         <Button
+//           variant="contained"
+//           color="primary"
+//           onClick={handleOpen}
+//           sx={{ mb: 2 }}
+//         >
+//           Ajouter un utilisateur
+//         </Button>
+
+//         <UsersList />
+//       </Box>
+
+//       {/* Modal pour le formulaire */}
+//       <Dialog
+//         open={openModal}
+//         onClose={handleClose}
+//         fullWidth
+//         maxWidth="md"
+//       >
+//         <DialogTitle>Ajouter un nouvel utilisateur</DialogTitle>
+//         <DialogContent>
+//           <UserForm onSuccess={handleClose} />
+//         </DialogContent>
+//         <DialogActions>
+//           <Button onClick={handleClose} color="error">
+//             Annuler
+//           </Button>
+//         </DialogActions>
+//       </Dialog>
+//     </Box>
+//   );
+// };
+
+import React, { useState } from "react";
 import {
-  Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Button,
   Box,
-  IconButton,
-  CircularProgress,
-  Chip
+  Typography,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton
 } from "@mui/material";
-import { Add, Edit, Visibility, Delete } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
-import { Users } from "gestepiinterfaces-semih";
+import UsersList from "../components/UsersList";
+import { UserForm } from "../components/UserForm";
+import { Edit } from "@mui/icons-material";
 
-// Données mockées pour le développement
-const mockUsers: Users[] = [
-  {
-    id: "1",
-    first_name: "Jean",
-    last_name: "Dupont",
-    email: "jean.dupont@example.com",
-    role: "Admin"
-  },
-  {
-    id: "2",
-    first_name: "Marie",
-    last_name: "Martin",
-    email: "marie.martin@example.com",
-    role: "Manager"
-  },
-  {
-    id: "3",
-    first_name: "Pierre",
-    last_name: "Durand",
-    email: "pierre.durand@example.com",
-    role: "User"
-  }
-];
+export const UserPages = () => {
+  const [openModal, setOpenModal] = useState(false); // Contrôle de la modal
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null); // Utilisateur à éditer
 
-export const UsersList = () => {
-  const [users, setUsers] = useState<Users[]>([]);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Simuler un chargement de données
-    const timer = setTimeout(() => {
-      setUsers(mockUsers);
-      setLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleDelete = (id: string) => {
-    // Simulation de la suppression
-    setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
-    // Dans une application réelle, vous feriez un appel API ici
-    console.log(`Suppression de l'utilisateur avec l'ID: ${id}`);
+  const handleOpen = (id?: string) => {
+    setSelectedUserId(id || null);
+    setOpenModal(true);
   };
 
-  const getRoleColor = (role: string): "primary" | "secondary" | "default" => {
-    switch (role) {
-      case "Admin":
-        return "primary";
-      case "Manager":
-        return "secondary";
-      default:
-        return "default";
-    }
+  const handleClose = () => {
+    setSelectedUserId(null);
+    setOpenModal(false);
   };
 
   return (
-    <div>
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Gestion des Utilisateurs
-        </Typography>
+    <Box sx={{ padding: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Gestion des utilisateurs
+      </Typography>
+
+      <Box sx={{ mb: 2 }}>
         <Button
           variant="contained"
-          startIcon={<Add />}
-          onClick={() => navigate("/users/new")}
+          color="primary"
+          onClick={() => handleOpen()} // ouverture de la modal en mode création
+          sx={{ mb: 2 }}
         >
           Ajouter un utilisateur
         </Button>
+
+        {/* Liste avec possibilité de déclencher une édition */}
+        <UsersList onEdit={handleOpen} />
       </Box>
 
-      {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="Liste des utilisateurs">
-            <TableHead>
-              <TableRow>
-                <TableCell>Nom</TableCell>
-                <TableCell>Prénom</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Rôle</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {users.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    Aucun utilisateur trouvé
-                  </TableCell>
-                </TableRow>
-              ) : (
-                users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.last_name}</TableCell>
-                    <TableCell>{user.first_name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Chip 
-                        label={user.role} 
-                        color={getRoleColor(user.role)}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <IconButton onClick={() => navigate(`/users/${user.id}`)}>
-                        <Visibility />
-                      </IconButton>
-                      <IconButton onClick={() => navigate(`/users/${user.id}/edit`)}>
-                        <Edit />
-                      </IconButton>
-                      <IconButton onClick={() => handleDelete(user.id)} color="error">
-                        <Delete />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-    </div>
+      {/* Modal de création / édition */}
+      <Dialog
+        open={openModal}
+        onClose={handleClose}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>
+          {selectedUserId ? "Modifier un utilisateur" : "Ajouter un utilisateur"}
+        </DialogTitle>
+        <DialogContent>
+          <UserForm id={selectedUserId} onSuccess={handleClose} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="error">
+            Annuler
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 };
-
-export default UsersList;

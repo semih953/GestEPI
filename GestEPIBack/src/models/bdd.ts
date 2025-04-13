@@ -1,34 +1,14 @@
 //********** Imports **********/
 import mariadb from "mariadb";
 
-// //********** Pool **********/
-// export const pool = mariadb.createPool({
-//   host: "localhost",
-//   user: "root",
-//   password: "",
-//   database: "gestepi",
-//   connectionLimit: 10,
-//   dateStrings: true,
-//   ssl: false
-// });
-
-// export const pool = mariadb.createPool({
-//   host: "localhost", // ou l'IP spécifique assignée au conteneur
-//   port: 3306, // ou le port mappé si différent
-//   user: "root",
-//   password: "root",
-//   database: "gestepi"
-// });
-
-
+//********** Pool **********/
 export const pool = mariadb.createPool({
   host: "localhost",
-  port: 3306,
-  user: "root@gmail.com",
-  password: "", // Laissez vide si vous n'avez pas défini de mot de passe, sinon mettez votre mot de passe
+  user: "root",
+  password: "root",
   database: "gestepi",
-  connectionLimit: 2,
-  connectTimeout: 5000
+  connectionLimit: 5,
+  dateStrings:true,
 });
 
 (async () => {
@@ -40,4 +20,3 @@ export const pool = mariadb.createPool({
     console.error("❌ Erreur de connexion :", err);
   }
 })();
-

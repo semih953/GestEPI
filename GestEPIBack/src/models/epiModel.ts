@@ -156,7 +156,7 @@ export const epiModel = {
     let conn;
     try {
       conn = await pool.getConnection();
-      const rows = await conn.query("SELECT * FROM epi_types");
+      const rows = await conn.query("SELECT * FROM epiTypes");
       return rows;
     } catch (err) {
       console.error("Error in getAllEpiTypes:", err);

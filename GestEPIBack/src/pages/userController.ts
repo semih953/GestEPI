@@ -5,6 +5,7 @@ import {
   handleAddUser, 
   handleDeleteUser, 
   handleGetAllUsers, 
+  handleGetUserByEmail, 
   handleGetUserById, 
   handleGetUsersByRole, 
   handleUpdateLastLogin, 
@@ -48,6 +49,30 @@ router.get(
         response.status(200).json(user);
       } else {
         response.status(404).json({ message: `No user found with id: ${id}` });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+
+// GET user by Email
+router.get(
+  "/getByEmail/:email",
+  async (
+    request: Request,
+    response: Response<Users | { message: string }>,
+    next: NextFunction
+  ) => {
+    try {
+      const email = request.params.email;
+      const user = await handleGetUserByEmail(email, next);
+      
+      if (user) {
+        response.status(200).json(user);
+      } else {
+        response.status(404).json({ message: `No user found with email: ${email}` });
       }
     } catch (error) {
       next(error);

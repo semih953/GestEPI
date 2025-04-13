@@ -38,7 +38,27 @@ export const userModel = {
     }
   },
 
-  addOne: async (user: Users & { password: string }): Promise<Users> => {
+  getByEmail: async (email: string): Promise<Users> => {
+    let conn;
+    try {
+      conn = await pool.getConnection();
+      const rows = await conn.query(
+        "SELECT id, first_name, last_name, email, password, role FROM users WHERE email = ?", 
+        [email]
+      );
+      if (rows.length === 0) {
+        throw new Error(`No user found with id: ${email}`);
+      }
+      return rows[0] as Users;
+    } catch (err) {
+      console.error("Error in getByEmail:", err);
+      throw err;
+    } finally {
+      if (conn) conn.release();
+    }
+  },
+
+  addOne: async (user: Users): Promise<Users> => {
     let conn;
     try {
       conn = await pool.getConnection();
@@ -58,7 +78,7 @@ export const userModel = {
           user.last_name,
           user.email,
           user.role,
-          user.password // Idéalement, ce devrait être un hash du mot de passe
+          user.password 
         ]
       );
       
@@ -69,7 +89,8 @@ export const userModel = {
         first_name: user.first_name,
         last_name: user.last_name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        password: user.password
       };
     } catch (err) {
       console.error("Error in addOne:", err);
@@ -210,20 +231,14 @@ export const userModel = {
       
       const user = rows[0];
       
-      // Ici, vous devriez comparer le mot de passe fourni avec le hash stocké
-      // en utilisant une bibliothèque comme bcrypt
-      // Par exemple: const isMatch = await bcrypt.compare(password, user.password);
-      
-      // Pour la simplicité, nous faisons une comparaison directe
-      // (À NE PAS FAIRE EN PRODUCTION)
       if (password === user.password) {
-        // Ne pas renvoyer le mot de passe
         return {
           id: user.id,
           first_name: user.first_name,
           last_name: user.last_name,
           email: user.email,
-          role: user.role
+          role: user.role,
+          password: user.password
         };
       }
       

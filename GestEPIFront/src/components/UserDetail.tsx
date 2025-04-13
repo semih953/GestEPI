@@ -22,25 +22,6 @@ export const UserDetail = () => {
   const [user, setUser] = useState<Users | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Simuler la récupération d'un utilisateur
-    const timer = setTimeout(() => {
-      // Exemple de récupération d'utilisateur par ID
-      const mockUser: Users = {
-        id: id || "",
-        first_name: id === "1" ? "Jean" : id === "2" ? "Marie" : "Pierre",
-        last_name: id === "1" ? "Dupont" : id === "2" ? "Martin" : "Durand",
-        email: id === "1" ? "jean.dupont@example.com" : id === "2" ? "marie.martin@example.com" : "pierre.durand@example.com",
-        role: id === "1" ? "Admin" : id === "2" ? "Manager" : "User"
-      };
-      
-      setUser(mockUser);
-      setLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [id]);
-
   const getRoleColor = (role: string): "primary" | "secondary" | "default" => {
     switch (role) {
       case "Admin":

@@ -17,16 +17,6 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { Epi } from "gestepiinterfaces-semih";
 
-
-// Mock EPI Types
-const mockEpiTypes = [
-  { id: 1, label: "Casque" },
-  { id: 2, label: "Harnais" },
-  { id: 3, label: "Corde" },
-  { id: 4, label: "Mousqueton" },
-  { id: 5, label: "Longe" }
-];
-
 export const EPIForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -49,12 +39,34 @@ export const EPIForm = () => {
   
   const [loading, setLoading] = useState(isEditMode);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [epiTypes, setEpiTypes] = useState<{ id: number; label: string }[]>([]);
+  const [typesLoading, setTypesLoading] = useState(true); // Pour indiquer que les types d'EPI sont en cours de chargement
+  const [typesError, setTypesError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Récupérer les types d'EPI via l'API
+    const fetchEpiTypes = async () => {
+      try {
+        const response = await fetch("http://localhost:5555/epi/types/all");
+        if (!response.ok) {
+          throw new Error("Erreur lors de la récupération des types d'EPI.");
+        }
+        const data = await response.json();
+        setEpiTypes(data);
+      } catch (err) {
+        setTypesError("Impossible de récupérer les types d'EPI.");
+        console.error('Error fetching EPI types:', err);
+      } finally {
+        setTypesLoading(false);
+      }
+    };
+
+    fetchEpiTypes();
+  }, []);
 
   useEffect(() => {
     if (isEditMode) {
-      // Simuler la récupération d'un EPI
       const timer = setTimeout(() => {
-        // Exemple de récupération d'EPI par ID
         const mockEpi = {
           id: parseInt(id || "0"),
           internal_id: `EPI-00${id}`,
@@ -69,7 +81,6 @@ export const EPIForm = () => {
           manufacture_date: new Date(),
           inspection_frequency: "6m"
         };
-        
         setEpi(mockEpi);
         setLoading(false);
       }, 500);
@@ -105,7 +116,6 @@ export const EPIForm = () => {
     
     if (!validateForm()) return;
 
-    // Mock submission
     console.log("Soumission du formulaire EPI:", epi);
     
     // Redirect to list after form submission
@@ -117,7 +127,7 @@ export const EPIForm = () => {
     return d.toISOString().split('T')[0];
   };
 
-  if (loading) {
+  if (loading || typesLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
         <CircularProgress />
@@ -140,7 +150,6 @@ export const EPIForm = () => {
                 label="Identifiant interne"
                 name="internal_id"
                 value={epi.internal_id}
-                // onChange={handleChange}
                 error={!!errors.internal_id}
                 helperText={errors.internal_id}
                 required
@@ -157,7 +166,7 @@ export const EPIForm = () => {
                   label="Type d'EPI"
                   required
                 >
-                  {mockEpiTypes.map(type => (
+                  {epiTypes.map(type => (
                     <MenuItem key={type.id} value={type.id}>{type.label}</MenuItem>
                   ))}
                 </Select>
@@ -171,7 +180,6 @@ export const EPIForm = () => {
                 label="Marque"
                 name="brand"
                 value={epi.brand}
-                // onChange={handleChange}
                 error={!!errors.brand}
                 helperText={errors.brand}
                 required
@@ -184,7 +192,6 @@ export const EPIForm = () => {
                 label="Modèle"
                 name="model"
                 value={epi.model}
-                // onChange={handleChange}
                 error={!!errors.model}
                 helperText={errors.model}
                 required
@@ -197,7 +204,6 @@ export const EPIForm = () => {
                 label="Numéro de série"
                 name="serial_number"
                 value={epi.serial_number}
-                // onChange={handleChange}
                 error={!!errors.serial_number}
                 helperText={errors.serial_number}
                 required
@@ -211,7 +217,6 @@ export const EPIForm = () => {
                 label="Date d'achat"
                 name="purchase_date"
                 value={formatDateForInput(epi.purchase_date)}
-                // onChange={handleChange}
                 InputLabelProps={{ shrink: true }}
                 error={!!errors.purchase_date}
                 helperText={errors.purchase_date}
@@ -226,7 +231,6 @@ export const EPIForm = () => {
                 label="Date de fabrication"
                 name="manufacture_date"
                 value={formatDateForInput(epi.manufacture_date)}
-                // onChange={handleChange}
                 InputLabelProps={{ shrink: true }}
                 error={!!errors.manufacture_date}
                 helperText={errors.manufacture_date}
@@ -241,7 +245,6 @@ export const EPIForm = () => {
                 label="Date de mise en service"
                 name="service_start_date"
                 value={formatDateForInput(epi.service_start_date)}
-                // onChange={handleChange}
                 InputLabelProps={{ shrink: true }}
                 error={!!errors.service_start_date}
                 helperText={errors.service_start_date}
@@ -255,7 +258,6 @@ export const EPIForm = () => {
                 label="Fréquence d'inspection"
                 name="inspection_frequency"
                 value={epi.inspection_frequency}
-                // onChange={handleChange}
                 placeholder="Ex: 3m, 6m, 1y"
                 error={!!errors.inspection_frequency}
                 helperText={errors.inspection_frequency || "Format: 3m (3 mois), 6m (6 mois), 1y (1 an)"}
@@ -269,7 +271,6 @@ export const EPIForm = () => {
                 label="Taille"
                 name="size"
                 value={epi.size || ""}
-                // onChange={handleChange}
                 error={!!errors.size}
                 helperText={errors.size}
               />
@@ -281,7 +282,6 @@ export const EPIForm = () => {
                 label="Couleur"
                 name="color"
                 value={epi.color || ""}
-                // onChange={handleChange}
                 error={!!errors.color}
                 helperText={errors.color}
               />

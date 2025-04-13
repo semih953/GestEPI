@@ -22,7 +22,16 @@ export const handleGetUserById = async (id: string, next: NextFunction) => {
   }
 };
 
-export const handleAddUser = async (user: Users, next: NextFunction) => {
+export const handleGetUserByEmail = async (email: string, next: NextFunction) => {
+  try {
+    return await userModel.getByEmail(email);
+  } catch (e) {
+    next(e);
+    return null;
+  }
+};
+
+export const handleAddUser = async (user: Users & { password: string }, next: NextFunction) => {
   try {
     return await userModel.addOne(user);
   } catch (e) {

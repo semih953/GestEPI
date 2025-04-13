@@ -32,16 +32,7 @@ export interface Users {
     first_name: string;
     last_name: string;
     email: string;
+    password: string;
     role: 'Admin' | 'Manager' | 'User';
 }
-export interface UserWithPassword extends Users {
-    password: string;
-}
-export interface LoginRequest {
-    email: string;
-    password: string;
-}
-export interface LoginResponse {
-    user: Users;
-    token: string;
-}
+
