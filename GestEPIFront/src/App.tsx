@@ -11,7 +11,7 @@ import { ControlList } from "./pages/ControlPages";
 import { UserPages } from "./pages/UserPages";
 import { Layout } from "./components/Layout";
 import { LoginPage } from "./pages/LoginPage";
-import { CreateAccount } from "./pages/CreateAccount";
+import { CreateAccount } from "./pages/SignupPage";
 import { PrivateRoute } from "./components/PrivateRoute";
 
 function App() {
