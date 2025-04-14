@@ -105,7 +105,7 @@ router.post(
 
 // PUT update user
 router.put(
-  "/update/:id",
+  "/update/:id",  // C'est correct maintenant
   async (
     request: Request,
     response: Response<Users | { message: string }>,

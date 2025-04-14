@@ -311,7 +311,7 @@ export const UserForm = ({
   ) => {
     const { name, value } = e.target;
     setUser((prev) => ({ ...prev, [name as string]: value }));
-
+  
     if (errors[name as string]) {
       setErrors((prev) => ({ ...prev, [name as string]: "" }));
     }
@@ -404,6 +404,37 @@ export const UserForm = ({
         .then((data) => setUser({ ...data }))
         .catch(() => setErrors({ global: "Erreur lors du chargement." }))
         .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, [isEditMode, propId]);
+  useEffect(() => {
+    console.log("isEditMode:", isEditMode);
+    console.log("propId:", propId);
+    
+    if (isEditMode && propId) {
+      setLoading(true);
+      const apiUrl = `http://localhost:5555/user/getById/${propId}`;
+      console.log("Calling API:", apiUrl);
+      
+      fetch(apiUrl)
+        .then(res => {
+          console.log("Response status:", res.status);
+          if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+          return res.json();
+        })
+        .then(data => {
+          console.log("Data received:", data);
+          setUser({ ...data });
+        })
+        .catch(err => {
+          console.error("Error fetching user:", err);
+          setErrors({ global: "Erreur lors du chargement." });
+        })
+        .finally(() => {
+          console.log("Setting loading to false");
+          setLoading(false);
+        });
     } else {
       setLoading(false);
     }
