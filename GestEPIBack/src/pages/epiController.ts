@@ -48,8 +48,6 @@ router.get(
   }
 );
 
-
-
 // POST new EPI
 router.post(
   "/add",
@@ -59,6 +57,7 @@ router.post(
     next: NextFunction
   ) => {
     try {
+      console.log("Données reçues pour création:", request.body);
       const newEpi = request.body as Epi;
       const epi = await handleAddEpi(newEpi, next);
       
@@ -68,6 +67,7 @@ router.post(
         response.status(400).json({ message: "Error creating new EPI" });
       }
     } catch (error) {
+      console.error("Erreur lors de l'ajout:", error);
       next(error);
     }
   }
@@ -75,13 +75,14 @@ router.post(
 
 // PUT update EPI
 router.put(
-  "update/:id",
+  "/update/:id",
   async (
     request: Request,
     response: Response<Epi | { message: string }>,
     next: NextFunction
   ) => {
     try {
+      console.log("Données reçues pour mise à jour:", request.body);
       const id = parseInt(request.params.id);
       const epiToUpdate = { ...request.body, id } as Epi;
       const updatedEpi = await handleUpdateEpi(epiToUpdate, next);
@@ -92,6 +93,7 @@ router.put(
         response.status(404).json({ message: `No EPI found with id: ${id}` });
       }
     } catch (error) {
+      console.error("Erreur lors de la mise à jour:", error);
       next(error);
     }
   }
@@ -153,13 +155,31 @@ router.get(
   ) => {
     try {
       const types = await handleGetAllEpiTypes(next);
+      
+      // Retourner une liste par défaut si pas de types
+      if (!types || types.length === 0) {
+        return response.status(200).json([
+          { id: 1, label: "Casque" },
+          { id: 2, label: "Harnais" },
+          { id: 3, label: "Corde" },
+          { id: 4, label: "Mousqueton" },
+          { id: 5, label: "Longe" }
+        ]);
+      }
+      
       response.status(200).json(types);
     } catch (error) {
-      next(error);
+      console.error("Erreur lors de la récupération des types:", error);
+      // Fallback en cas d'erreur
+      response.status(200).json([
+        { id: 1, label: "Casque" },
+        { id: 2, label: "Harnais" },
+        { id: 3, label: "Corde" },
+        { id: 4, label: "Mousqueton" },
+        { id: 5, label: "Longe" }
+      ]);
     }
   }
 );
-
-
 
 export default router;

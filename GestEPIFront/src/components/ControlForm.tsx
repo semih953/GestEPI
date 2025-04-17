@@ -12,70 +12,19 @@ import {
   Grid, 
   FormHelperText,
   CircularProgress,
-  Autocomplete
+  Autocomplete,
+  Alert,
+  SelectChangeEvent
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { Epi, EpiCheck } from "gestepiinterfaces-semih";
 
+// Interface pour les props du composant
+interface ControlFormProps {
+  viewMode?: boolean;
+}
 
-// Mock data
-const mockEpis: Epi[] = [
-  {
-    id: 1,
-    internal_id: "EPI-001",
-    serial_number: "SN123456",
-    model: "Casque Pro",
-    brand: "SafetyFirst",
-    type_id: 1,
-    size: "L",
-    color: "Rouge",
-    purchase_date: new Date("2023-01-15"),
-    service_start_date: new Date("2023-01-20"),
-    manufacture_date: new Date("2022-10-05"),
-    inspection_frequency: "6m"
-  },
-  {
-    id: 2,
-    internal_id: "EPI-002",
-    serial_number: "SN789012",
-    model: "Harnais Secure",
-    brand: "AlpineEquip",
-    type_id: 2,
-    size: "M",
-    color: "Noir",
-    purchase_date: new Date("2023-03-10"),
-    service_start_date: new Date("2023-03-15"),
-    manufacture_date: new Date("2023-01-20"),
-    inspection_frequency: "3m"
-  },
-  {
-    id: 3,
-    internal_id: "EPI-003",
-    serial_number: "SN345678",
-    model: "Corde Dynamic",
-    brand: "RopesMaster",
-    type_id: 3,
-    size: "50m",
-    color: "Bleu",
-    purchase_date: new Date("2022-11-05"),
-    service_start_date: new Date("2022-11-10"),
-    manufacture_date: new Date("2022-09-15"),
-    inspection_frequency: "3m"
-  }
-];
-
-const mockStatuses = [
-  { id: 1, label: "Opérationnel" },
-  { id: 2, label: "À réparer" },
-  { id: 3, label: "Mis au rebut" }
-];
-
-const mockUsers = [
-  { id: 1, firstName: "Jean", lastName: "Dupont" },
-  { id: 2, firstName: "Marie", lastName: "Martin" }
-];
-
-export const ControlForm = () => {
+export const ControlForm: React.FC<ControlFormProps> = ({ viewMode = false }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditMode = id !== "new" && !!id;
@@ -88,32 +37,101 @@ export const ControlForm = () => {
     user_id: 1
   });
   
+  const [epis, setEpis] = useState<Epi[]>([]);
   const [selectedEpi, setSelectedEpi] = useState<Epi | null>(null);
+  const [statuses, setStatuses] = useState<{id: number, label: string}[]>([]);
+  const [users, setUsers] = useState<{id: number, first_name: string, last_name: string}[]>([]);
   const [remarks, setRemarks] = useState("");
-  const [loading, setLoading] = useState(isEditMode);
+  const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
+  // Charger les EPIs, les statuts et les utilisateurs
   useEffect(() => {
-    if (isEditMode) {
-      // Simuler la récupération d'un contrôle
-      const timer = setTimeout(() => {
-        // Exemple de récupération de contrôle par ID
-        const mockControl = {
-          id: parseInt(id || "0"),
-          internal_id: mockEpis[0].internal_id,
-          check_date: new Date(),
-          status_id: 1,
-          user_id: 1
-        };
-        
-        setControl(mockControl);
-        setSelectedEpi(mockEpis.find(epi => epi.internal_id === mockControl.internal_id) || null);
-        setRemarks("RAS - Contrôle de routine");
-        setLoading(false);
-      }, 500);
+    const fetchData = async () => {
+      try {
+        // Charger les EPIs
+        const episResponse = await fetch("http://localhost:5555/epi/getAll");
+        if (!episResponse.ok) throw new Error("Erreur lors du chargement des EPIs");
+        const episData = await episResponse.json();
+        setEpis(episData);
 
-      return () => clearTimeout(timer);
-    }
+        // Charger les statuts (fallback si l'API échoue)
+        try {
+          const statusesResponse = await fetch("http://localhost:5555/epiCheck/statuses/all");
+          if (statusesResponse.ok) {
+            const statusesData = await statusesResponse.json();
+            setStatuses(statusesData);
+          } else {
+            // Fallback avec des statuts par défaut
+            setStatuses([
+              { id: 1, label: "Opérationnel" },
+              { id: 2, label: "À réparer" },
+              { id: 3, label: "Mis au rebut" }
+            ]);
+          }
+        } catch (error) {
+          console.error("Error loading statuses:", error);
+          // Fallback avec des statuts par défaut
+          setStatuses([
+            { id: 1, label: "Opérationnel" },
+            { id: 2, label: "À réparer" },
+            { id: 3, label: "Mis au rebut" }
+          ]);
+        }
+
+        // Charger les utilisateurs (fallback si l'API échoue)
+        try {
+          const usersResponse = await fetch("http://localhost:5555/user/getAll");
+          if (usersResponse.ok) {
+            const usersData = await usersResponse.json();
+            setUsers(usersData);
+          } else {
+            // Fallback avec des utilisateurs par défaut
+            setUsers([
+              { id: 1, first_name: "Jean", last_name: "Dupont" },
+              { id: 2, first_name: "Marie", last_name: "Martin" }
+            ]);
+          }
+        } catch (error) {
+          console.error("Error loading users:", error);
+          // Fallback avec des utilisateurs par défaut
+          setUsers([
+            { id: 1, first_name: "Jean", last_name: "Dupont" },
+            { id: 2, first_name: "Marie", last_name: "Martin" }
+          ]);
+        }
+
+        // Si mode édition, charger le contrôle existant
+        if (isEditMode) {
+          try {
+            const controlResponse = await fetch(`http://localhost:5555/epiCheck/getById/${id}`);
+            if (controlResponse.ok) {
+              const controlData = await controlResponse.json();
+              setControl(controlData);
+              
+              // Trouver l'EPI correspondant
+              const epi = episData.find((e: Epi) => e.internal_id === controlData.internal_id);
+              if (epi) setSelectedEpi(epi);
+            } else {
+              throw new Error("Erreur lors du chargement du contrôle");
+            }
+          } catch (error) {
+            console.error("Error loading control:", error);
+            setErrors({ global: "Erreur lors du chargement du contrôle" });
+          }
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setErrors({ global: "Erreur lors du chargement des données" });
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [id, isEditMode]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
@@ -125,11 +143,23 @@ export const ControlForm = () => {
       setErrors(prev => ({ ...prev, [name as string]: "" }));
     }
   };
+  
+  const handleSelectChange = (e: SelectChangeEvent<number>) => {
+    const { name, value } = e.target;
+    setControl(prev => ({ ...prev, [name as string]: value }));
+    
+    if (errors[name as string]) {
+      setErrors(prev => ({ ...prev, [name as string]: "" }));
+    }
+  };
 
   const handleEpiChange = (_event: React.SyntheticEvent, epi: Epi | null) => {
     setSelectedEpi(epi);
     if (epi) {
       setControl(prev => ({ ...prev, internal_id: epi.internal_id }));
+      if (errors.internal_id) {
+        setErrors(prev => ({ ...prev, internal_id: "" }));
+      }
     } else {
       setControl(prev => ({ ...prev, internal_id: "" }));
     }
@@ -140,28 +170,74 @@ export const ControlForm = () => {
     
     if (!control.internal_id) newErrors.internal_id = "L'EPI est requis";
     if (!control.user_id) newErrors.user_id = "Le contrôleur est requis";
+    if (!control.status_id) newErrors.status_id = "Le statut est requis";
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    setSubmitError(null);
+    setSubmitSuccess(null);
     
     if (!validateForm()) return;
 
-    // Mock submission
-    console.log("Soumission du formulaire de contrôle:", { ...control, remarks });
-    
-    // Redirect to list after form submission
-    navigate("/controls");
+    // Format the date properly
+    const checkDate = typeof control.check_date === 'string' 
+      ? new Date(control.check_date).toISOString().split('T')[0]
+      : control.check_date.toISOString().split('T')[0];
+
+    // S'assurer que tous les champs requis sont présents et correctement formatés
+    const checkData = {
+      internal_id: control.internal_id,
+      check_date: checkDate,
+      status_id: Number(control.status_id),  // Conversion explicite en nombre
+      user_id: Number(control.user_id)       // Conversion explicite en nombre
+    };
+
+    console.log('Envoi des données:', checkData);  // Debugging
+
+    try {
+      const url = isEditMode 
+        ? `http://localhost:5555/epiCheck/update/${id}`
+        : "http://localhost:5555/epiCheck/add";
+      
+      const method = isEditMode ? "PUT" : "POST";
+      
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(checkData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erreur lors de la soumission du formulaire");
+      }
+
+      setSubmitSuccess(isEditMode 
+        ? "Contrôle mis à jour avec succès!" 
+        : "Contrôle ajouté avec succès!");
+      
+      // Rediriger après un court délai
+      setTimeout(() => {
+        navigate("/control");
+      }, 1500);
+    } catch (err) {
+      console.error("Error submitting form:", err);
+      setSubmitError(err instanceof Error ? err.message : "Une erreur est survenue lors de l'enregistrement du contrôle.");
+    }
   };
 
   const formatDateForInput = (date: Date) => {
     const d = new Date(date);
     return d.toISOString().split('T')[0];
   };
-
+  
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
@@ -173,18 +249,42 @@ export const ControlForm = () => {
   return (
     <Box>
       <Typography variant="h4" component="h1" gutterBottom>
-        {isEditMode ? "Modifier un contrôle" : "Ajouter un nouveau contrôle"}
+        {viewMode 
+          ? "Détails du contrôle" 
+          : isEditMode 
+            ? "Modifier un contrôle" 
+            : "Ajouter un nouveau contrôle"
+        }
       </Typography>
+
+      {submitError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {submitError}
+        </Alert>
+      )}
+
+      {submitSuccess && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {submitSuccess}
+        </Alert>
+      )}
+
+      {errors.global && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {errors.global}
+        </Alert>
+      )}
 
       <Paper sx={{ p: 3, mt: 2 }}>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <Autocomplete
-                options={mockEpis}
+                options={epis}
                 getOptionLabel={(option) => `${option.internal_id} - ${option.brand} ${option.model}`}
                 value={selectedEpi}
                 onChange={handleEpiChange}
+                disabled={viewMode}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -203,28 +303,29 @@ export const ControlForm = () => {
                 type="date"
                 label="Date du contrôle"
                 name="check_date"
-                value={formatDateForInput(control.check_date)}
+                value={formatDateForInput(new Date(control.check_date))}
                 onChange={handleChange}
                 InputLabelProps={{ shrink: true }}
                 error={!!errors.check_date}
                 helperText={errors.check_date}
                 required
+                disabled={viewMode}
               />
             </Grid>
             
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth error={!!errors.user_id}>
+              <FormControl fullWidth error={!!errors.user_id} required>
                 <InputLabel>Contrôleur</InputLabel>
                 <Select
                   name="user_id"
                   value={control.user_id}
-                  // onChange={handleChange}
+                  onChange={handleSelectChange}
                   label="Contrôleur"
-                  required
+                  disabled={viewMode}
                 >
-                  {mockUsers.map(user => (
+                  {users.map(user => (
                     <MenuItem key={user.id} value={user.id}>
-                      {user.firstName} {user.lastName}
+                      {user.first_name} {user.last_name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -233,17 +334,19 @@ export const ControlForm = () => {
             </Grid>
             
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth error={!!errors.status_id}>
+              <FormControl fullWidth error={!!errors.status_id} required>
                 <InputLabel>Statut</InputLabel>
                 <Select
                   name="status_id"
                   value={control.status_id}
-                  // onChange={handleChange}
+                  onChange={handleSelectChange}
                   label="Statut"
-                  required
+                  disabled={viewMode}
                 >
-                  {mockStatuses.map(status => (
-                    <MenuItem key={status.id} value={status.id}>{status.label}</MenuItem>
+                  {statuses.map(status => (
+                    <MenuItem key={status.id} value={status.id}>
+                      {status.label}
+                    </MenuItem>
                   ))}
                 </Select>
                 {errors.status_id && <FormHelperText>{errors.status_id}</FormHelperText>}
@@ -259,19 +362,26 @@ export const ControlForm = () => {
                 onChange={(e) => setRemarks(e.target.value)}
                 multiline
                 rows={4}
-                error={!!errors.remarks}
-                helperText={errors.remarks}
+                disabled={viewMode}
               />
             </Grid>
             
             <Grid item xs={12}>
               <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
-                <Button variant="outlined" onClick={() => navigate("/controls")}>
-                  Annuler
+                <Button 
+                  variant="outlined" 
+                  onClick={() => navigate("/control")}
+                >
+                  {viewMode ? "Retour" : "Annuler"}
                 </Button>
-                <Button variant="contained" type="submit">
-                  {isEditMode ? "Mettre à jour" : "Ajouter"}
-                </Button>
+                {!viewMode && (
+                  <Button 
+                    variant="contained" 
+                    type="submit"
+                  >
+                    {isEditMode ? "Mettre à jour" : "Ajouter"}
+                  </Button>
+                )}
               </Box>
             </Grid>
           </Grid>

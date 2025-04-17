@@ -24,6 +24,7 @@ export interface EpiCheck {
   check_date: Date;
   status_id: number;
   user_id: number;
+  remarks?: string; // Ajout de la propriété remarks comme optionnelle
 }
   
 export interface CheckStatus {

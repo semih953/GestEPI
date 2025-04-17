@@ -13,6 +13,7 @@ import { Layout } from "./components/Layout";
 import { LoginPage } from "./pages/LoginPage";
 import { CreateAccount } from "./pages/SignupPage";
 import { PrivateRoute } from "./components/PrivateRoute";
+import { ControlForm } from "./components/ControlForm";
 
 function App() {
   return (
@@ -47,6 +48,30 @@ function App() {
               element={
                 <PrivateRoute>
                   <ControlList />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="controls/:id" 
+              element={
+                <PrivateRoute>
+                  <ControlForm viewMode={true} />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="controls/:id/edit" 
+              element={
+                <PrivateRoute>
+                  <ControlForm viewMode={false} />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="controls/new" 
+              element={
+                <PrivateRoute>
+                  <ControlForm viewMode={false} />
                 </PrivateRoute>
               } 
             />
